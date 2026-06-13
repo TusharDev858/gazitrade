@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Sign In — Gazitrade{% endblock %}
+{% block nav_acc %}active{% endblock %}
+{% block extra_css %}
+<style>
+.auth-bg {
+  min-height:calc(100vh - var(--nav) - var(--bot));
+  display:flex; align-items:center; justify-content:center;
+  padding:28px 16px;
+  background:radial-gradient(ellipse at top,var(--sur2) 0%,var(--bg) 70%);
+}
+.auth-card {
+  width:100%; max-width:420px;
+  background:var(--sur); border:1px solid var(--bdr);
+  border-radius:24px; padding:32px 28px;
+  box-shadow:var(--s3);
+}
+.auth-logo {
+  width:60px; height:60px; border-radius:16px; margin:0 auto 16px;
+  background:linear-gradient(135deg,var(--p),color-mix(in srgb,var(--p) 60%,var(--a)));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--fd); font-size:24px; font-weight:800; color:#fff;
+  box-shadow:0 6px 20px var(--p10);
+}
+.auth-title { font-family:var(--fd); font-size:24px; font-weight:800; text-align:center; color:var(--tx); margin-bottom:6px }
+.auth-sub   { font-size:13px; color:var(--tx3); text-align:center; margin-bottom:26px }
+.pw-wrap { position:relative }
+.pw-toggle { position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  border:none; background:none; color:var(--tx3); font-size:16px; cursor:pointer }
+@media(min-width:768px){ .auth-bg { min-height:calc(100vh - var(--nav) - var(--top)); } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-bg">
+  <div class="auth-card">
+    <div class="auth-logo">{% if site_settings %}{{ site_settings.site_logo_text }}{% else %}ZZ{% endif %}</div>
+    <div class="auth-title">Welcome Back</div>
+    <div class="auth-sub">Sign in to your {% if site_settings %}{{ site_settings.site_name }}{% else %}Gazitrade{% endif %} account</div>
+
+    <form method="post" autocomplete="on">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Phone Number *</label>
+        <input type="tel" name="phone" class="form-input"
+               placeholder="01XXXXXXXXX" autocomplete="username" required>
+        <div class="form-hint">11 digits starting with 01</div>
+      </div>
+      <div class="form-group">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <label class="form-label" style="margin-bottom:0">Password *</label>
+          <a href="#" style="font-size:12px;color:var(--p);font-weight:700">Forgot password?</a>
+        </div>
+        <div class="pw-wrap">
+          <input type="password" name="password" id="passIn" class="form-input"
+                 placeholder="Enter your password" autocomplete="current-password" required
+                 style="padding-right:44px">
+          <button type="button" class="pw-toggle" onclick="togglePass()">
+            <i class="fas fa-eye" id="passIcon"></i>
+          </button>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:9px;margin-bottom:20px;cursor:pointer">
+        <input type="checkbox" name="remember"
+               style="width:17px;height:17px;accent-color:var(--p);border-radius:4px">
+        <span style="font-size:13px;font-weight:600;color:var(--tx)">Remember me</span>
+      </label>
+      <button type="submit" class="btn btn-primary" style="font-size:15px;padding:14px">
+        <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+      </button>
+      <p style="text-align:center;margin-top:18px;font-size:13px;color:var(--tx3)">
+        Don't have an account?
+        <a href="{% url 'register' %}" style="color:var(--p);font-weight:800">Create one free</a>
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function togglePass(){
+  const i=document.getElementById('passIn'), ic=document.getElementById('passIcon');
+  i.type = i.type==='password' ? 'text' : 'password';
+  ic.className = i.type==='text' ? 'fas fa-eye-slash' : 'fas fa-eye';
+}
+</script>
+{% endblock %}

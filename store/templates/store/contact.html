@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us — {% if site_settings %}{{ site_settings.site_name }}{% else %}Gazitrade{% endif %}{% endblock %}
+{% block extra_css %}
+<style>
+.ct-wrap{max-width:860px;margin:0 auto;padding:0 16px 48px}
+.ct-hero{background:linear-gradient(135deg,var(--p),color-mix(in srgb,var(--p) 55%,var(--a)));
+  padding:44px 16px 52px;text-align:center;color:#fff}
+.ct-hero h1{font-family:var(--fd);font-size:30px;font-weight:800;margin-bottom:8px}
+.ct-hero p{font-size:14px;opacity:.85;max-width:480px;margin:0 auto;line-height:1.7}
+.ct-grid{display:grid;grid-template-columns:1fr;gap:20px;margin-top:-28px}
+.ct-card{background:var(--sur);border:1px solid var(--bdr);border-radius:20px;
+  padding:26px;box-shadow:var(--s3)}
+.ct-info-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;
+  border-bottom:1px solid var(--bdr)}
+.ct-info-item:last-child{border-bottom:none}
+.ct-info-icon{width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:18px}
+.ct-info-label{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:3px}
+.ct-info-value{font-size:15px;font-weight:700;color:var(--tx)}
+.ct-info-sub{font-size:12px;color:var(--tx3);margin-top:2px}
+.ct-form-title{font-family:var(--fd);font-size:20px;font-weight:800;color:var(--p);
+  margin-bottom:16px;display:flex;align-items:center;gap:9px}
+.ct-submit{width:100%;padding:14px;border-radius:12px;font-size:15px;font-weight:800;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(135deg,var(--p),color-mix(in srgb,var(--p) 70%,var(--a)));
+  color:#fff;box-shadow:0 6px 20px var(--p10);transition:opacity .2s,transform .15s}
+.ct-submit:active{transform:scale(.98);opacity:.9}
+.ct-success{text-align:center;padding:32px 20px}
+.ct-success-icon{width:80px;height:80px;border-radius:50%;margin:0 auto 16px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;box-shadow:0 8px 24px rgba(34,197,94,.3)}
+.wa-cta{display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;padding:13px;border-radius:12px;font-size:14px;font-weight:800;
+  background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;border:none;
+  text-decoration:none;box-shadow:0 4px 16px rgba(37,211,102,.3);transition:opacity .2s}
+.wa-cta:hover{opacity:.9}
+@media(min-width:768px){
+  .ct-grid{grid-template-columns:1fr 1.4fr}
+  .ct-hero h1{font-size:36px}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ct-hero">
+  <div style="font-size:40px;margin-bottom:12px">📬</div>
+  <h1>Get in Touch</h1>
+  <p>Have a question, want to place an order, or need help? We're here for you — reach out anytime.</p>
+</div>
+
+<div class="ct-wrap">
+  <div class="ct-grid">
+
+    <!-- CONTACT INFO -->
+    <div>
+      <div class="ct-card" style="margin-bottom:14px">
+        <div style="font-family:var(--fd);font-size:18px;font-weight:800;color:var(--p);margin-bottom:4px">
+          Contact Information
+        </div>
+        <div style="font-size:13px;color:var(--tx3);margin-bottom:6px">
+          {% if site_settings %}{{ site_settings.site_name }}{% else %}Gazitrade{% endif %} — Premium Store
+        </div>
+
+        {% if site_settings and site_settings.phone %}
+        <div class="ct-info-item">
+          <div class="ct-info-icon" style="background:var(--p10);color:var(--p)">
+            <i class="fas fa-phone"></i>
+          </div>
+          <div>
+            <div class="ct-info-label">Phone</div>
+            <a href="tel:{{ site_settings.phone }}" class="ct-info-value" style="color:var(--tx);text-decoration:none">
+              {{ site_settings.phone }}
+            </a>
+            <div class="ct-info-sub">Call or SMS anytime</div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if site_settings and site_settings.whatsapp %}
+        <div class="ct-info-item">
+          <div class="ct-info-icon" style="background:#dcfce7;color:#16a34a">
+            <i class="fab fa-whatsapp"></i>
+          </div>
+          <div>
+            <div class="ct-info-label">WhatsApp</div>
+            <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="ct-info-value" style="color:var(--tx);text-decoration:none">
+              +{{ site_settings.whatsapp }}
+            </a>
+            <div class="ct-info-sub">Fastest response via WhatsApp</div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if site_settings and site_settings.email %}
+        <div class="ct-info-item">
+          <div class="ct-info-icon" style="background:var(--p10);color:var(--p)">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div>
+            <div class="ct-info-label">Email</div>
+            <a href="mailto:{{ site_settings.email }}" class="ct-info-value" style="color:var(--tx);text-decoration:none">
+              {{ site_settings.email }}
+            </a>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if site_settings and site_settings.address %}
+        <div class="ct-info-item">
+          <div class="ct-info-icon" style="background:var(--p10);color:var(--p)">
+            <i class="fas fa-location-dot"></i>
+          </div>
+          <div>
+            <div class="ct-info-label">Address</div>
+            <div class="ct-info-value">{{ site_settings.address }}</div>
+          </div>
+        </div>
+        {% else %}
+        <div class="ct-info-item">
+          <div class="ct-info-icon" style="background:var(--p10);color:var(--p)">
+            <i class="fas fa-location-dot"></i>
+          </div>
+          <div>
+            <div class="ct-info-label">Location</div>
+            <div class="ct-info-value">Dhaka, Mirpur-1</div>
+            <div class="ct-info-sub">Delivering nationwide</div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="ct-info-item">
+          <div class="ct-info-icon" style="background:var(--p10);color:var(--p)">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div>
+            <div class="ct-info-label">Business Hours</div>
+            <div class="ct-info-value">Sat – Thu: 9 AM – 9 PM</div>
+            <div class="ct-info-sub">Friday: 2 PM – 9 PM</div>
+          </div>
+        </div>
+      </div>
+
+      {% if site_settings and site_settings.whatsapp %}
+      <a href="https://wa.me/{{ site_settings.whatsapp }}?text=Hi%2C%20I%20have%20a%20question%20about%20your%20store."
+         target="_blank" rel="noopener" class="wa-cta">
+        <i class="fab fa-whatsapp" style="font-size:20px"></i>
+        Chat on WhatsApp — Fastest Reply
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- CONTACT FORM -->
+    <div class="ct-card">
+      {% if submitted %}
+      <div class="ct-success">
+        <div class="ct-success-icon">✅</div>
+        <h2 style="font-family:var(--fd);font-size:22px;font-weight:800;margin-bottom:8px;color:var(--tx)">
+          Message Sent!
+        </h2>
+        <p style="font-size:14px;color:var(--tx2);line-height:1.7;margin-bottom:22px">
+          Thank you for reaching out. We'll get back to you as soon as possible, usually within a few hours.
+        </p>
+        <a href="{% url 'home' %}" class="btn btn-primary" style="max-width:220px;margin:0 auto;display:flex">
+          <i class="fas fa-home"></i> Back to Home
+        </a>
+      </div>
+      {% else %}
+      <div class="ct-form-title">
+        <i class="fas fa-paper-plane"></i> Send Us a Message
+      </div>
+      <form method="post" action="{% url 'contact' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Your Name *</label>
+          <input type="text" name="name" class="form-input" required placeholder="Full name">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" name="phone" class="form-input" placeholder="01XXXXXXXXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-input" placeholder="you@example.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <select name="subject" class="form-input" style="cursor:pointer">
+            <option value="">— Select a topic —</option>
+            <option value="Order Inquiry">Order Inquiry</option>
+            <option value="Product Question">Product Question</option>
+            <option value="Delivery Issue">Delivery Issue</option>
+            <option value="Return / Refund">Return / Refund</option>
+            <option value="General Question">General Question</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message *</label>
+          <textarea name="message" class="form-input" rows="5" required
+                    placeholder="Write your message here…"></textarea>
+        </div>
+        <button type="submit" class="ct-submit">
+          <i class="fas fa-paper-plane"></i> Send Message
+        </button>
+        <p style="text-align:center;font-size:12px;color:var(--tx3);margin-top:10px">
+          We typically reply within a few hours during business hours.
+        </p>
+      </form>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

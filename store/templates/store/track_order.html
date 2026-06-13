@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load store_tags %}
+{% block title %}Track Order — Gazitrade{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>📦 Track Your Order</h1>
+</div>
+
+<div class="section" style="max-width:640px;margin:0 auto">
+
+  <!-- SEARCH FORM -->
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:20px;
+              padding:24px;margin-bottom:16px;box-shadow:var(--s2)">
+    <p style="font-size:14px;color:var(--tx2);margin-bottom:18px;line-height:1.7">
+      Enter your invoice number to get real-time status of your order.
+      Your invoice number was sent after placing your order.
+    </p>
+    <form method="post">{% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Invoice Number</label>
+        <div style="display:flex;gap:10px">
+          <input type="text" name="invoice" class="form-input"
+                 placeholder="e.g. HS12345678" required style="flex:1;text-transform:uppercase"
+                 value="{% if request.POST.invoice %}{{ request.POST.invoice }}{% endif %}">
+          <button type="submit" class="btn btn-primary btn-sm" style="padding:0 22px;white-space:nowrap">
+            <i class="fas fa-search"></i> Track
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  {% if order %}
+  <!-- ORDER FOUND -->
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:20px;
+              padding:20px;box-shadow:var(--s2)">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-size:11px;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:1px">Invoice</div>
+        <div style="font-size:20px;font-weight:900;color:var(--tx)">{{ order.invoice_number }}</div>
+      </div>
+      <span style="padding:8px 16px;border-radius:20px;font-size:12px;font-weight:800;
+        {% if order.status == 'delivered' %}background:#dcfce7;color:#15803d
+        {% elif order.status == 'cancelled' %}background:#fee2e2;color:#b91c1c
+        {% elif order.status == 'shipped' %}background:#dbeafe;color:#1d4ed8
+        {% elif order.status == 'transferred' %}background:#ede9fe;color:#6d28d9
+        {% else %}background:#fef9c3;color:#854d0e{% endif %}">
+        {{ order.get_status_display }}
+      </span>
+    </div>
+
+    <!-- Progress Tracker -->
+    {% with s=order.status %}
+    <div style="position:relative;margin-bottom:28px;padding:0 8px">
+      <!-- Connecting line -->
+      <div style="position:absolute;top:11px;left:20px;right:20px;height:3px;
+                  background:var(--bdr);border-radius:2px;z-index:0"></div>
+      <div style="display:flex;justify-content:space-between;position:relative;z-index:1">
+        {% for step_label,step_key in progress_steps %}
+        {% with is_done=step_key|add:',pending,confirmed,transferred,shipped,delivered' %}
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:800;
+                      color:#fff;display:flex;align-items:center;justify-content:center;
+                      border:3px solid var(--sur);
+                      background:{% if step_key == s %}var(--p)
+                                 {% elif step_key == 'pending' %}var(--p)
+                                 {% elif step_key == 'confirmed' and s in 'confirmed,transferred,shipped,delivered' %}var(--p)
+                                 {% elif step_key == 'transferred' and s in 'transferred,shipped,delivered' %}var(--p)
+                                 {% elif step_key == 'shipped' and s in 'shipped,delivered' %}var(--p)
+                                 {% elif step_key == 'delivered' and s == 'delivered' %}var(--p)
+                                 {% else %}var(--bdr){% endif %}">
+            {% if step_key == 'pending' %}<i class="fas fa-clock" style="font-size:9px"></i>
+            {% elif step_key == 'confirmed' %}<i class="fas fa-check" style="font-size:9px"></i>
+            {% elif step_key == 'transferred' %}<i class="fas fa-box" style="font-size:9px"></i>
+            {% elif step_key == 'shipped' %}<i class="fas fa-truck" style="font-size:9px"></i>
+            {% else %}<i class="fas fa-star" style="font-size:9px"></i>
+            {% endif %}
+          </div>
+          <span style="font-size:9px;font-weight:700;color:var(--tx3);text-align:center;line-height:1.3;max-width:52px">
+            {{ step_label }}
+          </span>
+        </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endwith %}
+
+    <!-- Order info -->
+    <div style="background:var(--sur2);border-radius:14px;padding:14px;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
+        <div><span style="color:var(--tx3);display:block;font-size:11px;font-weight:600;margin-bottom:2px">Customer</span><span style="font-weight:700;color:var(--tx)">{{ order.customer_name }}</span></div>
+        <div><span style="color:var(--tx3);display:block;font-size:11px;font-weight:600;margin-bottom:2px">Phone</span><span style="font-weight:700;color:var(--tx)">{{ order.customer_phone }}</span></div>
+        <div><span style="color:var(--tx3);display:block;font-size:11px;font-weight:600;margin-bottom:2px">Payment</span><span style="font-weight:700;color:var(--tx)">{{ order.get_payment_type_display }}</span></div>
+        <div><span style="color:var(--tx3);display:block;font-size:11px;font-weight:600;margin-bottom:2px">Ordered</span><span style="font-weight:700;color:var(--tx)">{{ order.created_at|date:"d M Y" }}</span></div>
+      </div>
+      {% if order.customer_address %}
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr);font-size:12px;color:var(--tx2)">
+        <i class="fas fa-location-dot" style="color:var(--p);margin-right:6px"></i>{{ order.customer_address }}
+      </div>
+      {% endif %}
+      {% if order.droploo_order_id %}
+      <div style="margin-top:8px;font-size:12px;color:var(--tx2)">
+        <i class="fas fa-truck" style="color:var(--p);margin-right:6px"></i>Droploo ID: <strong>{{ order.droploo_order_id }}</strong>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Items -->
+    <div style="margin-bottom:14px">
+      {% for item in order.items.all %}
+      <div style="display:flex;justify-content:space-between;align-items:center;
+                  font-size:13px;padding:8px 0;border-bottom:1px solid var(--bdr)">
+        <div style="flex:1;overflow:hidden;margin-right:10px">
+          <div style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx)">
+            {{ item.product_name|truncatechars:32 }}
+          </div>
+          <div style="font-size:11px;color:var(--tx3)">
+            {% if item.size %}{{ item.size }} {% endif %}× {{ item.qty }}
+          </div>
+        </div>
+        <span style="font-weight:800;color:var(--p);flex-shrink:0">{{ item.line_total|currency }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Total -->
+    <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:900;
+                background:var(--sur2);padding:14px;border-radius:12px">
+      <span>Total</span>
+      <span style="color:var(--p)">{{ order.total|currency }}</span>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

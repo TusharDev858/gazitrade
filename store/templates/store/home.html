@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<style>
+
+/* ── HERO SLIDER ── */
+.hero-slider{position:relative;overflow:hidden}
+.slides{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+.slide{
+  min-width:100%;min-height:260px;display:flex;align-items:center;
+  padding:36px 22px;position:relative;overflow:hidden;
+  background-size:cover;background-position:center center;background-repeat:no-repeat;
+}
+/* Dark overlay so text stays readable over any image */
+.slide::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,0,0,.52) 0%,rgba(0,0,0,.22) 100%);
+  z-index:0;
+}
+.slide-content{flex:1;z-index:1;position:relative}
+.slide-tag{font-size:10px;font-weight:700;color:rgba(255,255,255,.82);
+  text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.slide-title{font-family:var(--fd);font-size:28px;color:#fff;line-height:1.2;margin-bottom:8px;
+  text-shadow:0 2px 8px rgba(0,0,0,.3)}
+.slide-sub{font-size:13px;color:rgba(255,255,255,.88);margin-bottom:18px;line-height:1.6}
+.slide-btn{display:inline-flex;align-items:center;gap:7px;background:#fff;
+  color:var(--p);padding:11px 22px;border-radius:10px;font-size:13px;font-weight:800;border:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.slide-btn:hover{opacity:.92}
+.slider-dots{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  display:flex;gap:5px;z-index:2}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);
+  transition:all .3s;border:none;padding:0;cursor:pointer}
+.dot.active{width:22px;border-radius:3px;background:#fff}
+.slider-arrow{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;
+  border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;
+  font-size:14px;display:flex;align-items:center;justify-content:center;
+  z-index:2;transition:background .2s;cursor:pointer;backdrop-filter:blur(4px)}
+.slider-arrow:hover{background:rgba(255,255,255,.32)}
+.slider-arrow.prev{left:12px}.slider-arrow.next{right:12px}
+
+/* ── CATEGORY CAROUSEL ── */
+.cat-carousel-wrap{position:relative;overflow:hidden}
+.cat-track{display:flex;gap:14px;transition:transform .45s cubic-bezier(.4,0,.2,1);
+  padding:6px 4px 10px}
+.cat-card{
+  flex-shrink:0;width:110px;border-radius:18px;overflow:hidden;
+  background:var(--sur);border:2px solid var(--bdr);
+  box-shadow:var(--s1);text-decoration:none;
+  transition:transform .22s,box-shadow .22s,border-color .22s;
+  display:flex;flex-direction:column;align-items:center;
+}
+.cat-card:hover{transform:translateY(-4px);box-shadow:var(--s2);border-color:var(--p)}
+.cat-card-img{width:110px;height:90px;object-fit:cover;display:block;background:var(--sur2)}
+.cat-card-icon{width:110px;height:90px;display:flex;align-items:center;justify-content:center;
+  background:var(--sur2);font-size:32px;color:var(--tx3)}
+.cat-card-name{padding:8px 6px;font-size:11px;font-weight:700;color:var(--tx);
+  text-align:center;line-height:1.3;width:100%}
+.cat-all-card{background:linear-gradient(135deg,var(--p),color-mix(in srgb,var(--p) 70%,var(--a)));
+  border-color:var(--p)}
+.cat-all-card .cat-card-icon{background:transparent;color:#fff;font-size:28px}
+.cat-all-card .cat-card-name{color:#fff}
+.cat-arr{position:absolute;top:50%;transform:translateY(-60%);width:32px;height:32px;
+  border-radius:50%;background:var(--sur);border:2px solid var(--bdr);color:var(--p);
+  font-size:12px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:3;box-shadow:var(--s1);transition:all .2s}
+.cat-arr:hover{background:var(--p);color:#fff;border-color:var(--p)}
+.cat-arr.prev{left:0}.cat-arr.next{right:0}
+@media(min-width:768px){
+  .slide{min-height:420px;padding:72px 60px}
+  .slide-title{font-size:46px}
+  .slide-sub{font-size:15px}
+  .cat-card{width:130px}
+  .cat-card-img,.cat-card-icon{width:130px;height:108px}
+}
+
+/* ── OFFER BANNER (full image bg support) ── */
+.offer-slider{position:relative;margin:0 16px 20px;border-radius:18px;overflow:hidden;box-shadow:var(--s2)}
+.offer-slides{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1)}
+.offer-slide{
+  min-width:100%;min-height:160px;display:flex;align-items:center;padding:24px 22px;
+  position:relative;overflow:hidden;
+  background-size:cover;background-position:center;
+}
+.offer-slide::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.15) 100%);
+  z-index:0;
+}
+.offer-slide-content{flex:1;z-index:1;position:relative}
+.offer-badge{display:inline-block;background:rgba(255,255,255,.25);color:#fff;
+  font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;
+  border:1px solid rgba(255,255,255,.35)}
+.offer-title{font-family:var(--fd);font-size:20px;color:#fff;font-weight:800;
+  line-height:1.2;margin-bottom:6px;text-shadow:0 1px 6px rgba(0,0,0,.3)}
+.offer-sub{font-size:12px;color:rgba(255,255,255,.88);margin-bottom:14px;line-height:1.5}
+.offer-btn{display:inline-flex;align-items:center;gap:6px;background:#fff;
+  color:var(--p);padding:9px 18px;border-radius:9px;font-size:13px;font-weight:800;
+  border:none;cursor:pointer;text-decoration:none}
+.offer-prev,.offer-next{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;
+  border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:12px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;
+  transition:background .2s;backdrop-filter:blur(4px)}
+.offer-prev:hover,.offer-next:hover{background:rgba(255,255,255,.35)}
+.offer-prev{left:10px}.offer-next{right:10px}
+.offer-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  display:flex;gap:5px;z-index:2}
+.offer-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45);
+  border:none;padding:0;cursor:pointer;transition:all .3s}
+.offer-dot.active{width:16px;border-radius:3px;background:#fff}
+@media(min-width:768px){
+  .offer-slider{margin:0 40px 24px}
+  .offer-slide{min-height:200px;padding:36px 40px}
+  .offer-title{font-size:28px}
+}
+</style>
+{% endblock %}
+{% load store_tags %}
+{% block nav_home %}active{% endblock %}
+{% block content %}
+
+{% if user.is_staff %}
+<div style="background:#1e3a5f;color:#fff;padding:10px 16px;font-size:12px;
+            display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+  <span style="font-weight:700;opacity:.9">🛠 Admin Tools</span>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="syncNow(this)" style="background:#3b82f6;color:#fff;border:none;padding:6px 14px;
+      border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">
+      <i class="fas fa-sync"></i> Sync Products
+    </button>
+    <button onclick="fixCats(this)" style="background:#22c55e;color:#fff;border:none;padding:6px 14px;
+      border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">
+      <i class="fas fa-tags"></i> Fix Category Names
+    </button>
+    <button onclick="clearResync(this)" style="background:#ef4444;color:#fff;border:none;padding:6px 14px;
+      border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">
+      <i class="fas fa-trash-restore"></i> Clear & Re-sync
+    </button>
+    <a href="/admin/" style="background:#6366f1;color:#fff;padding:6px 14px;
+      border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">
+      <i class="fas fa-cog"></i> Admin Panel
+    </a>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── HERO SLIDER ── -->
+<div class="hero-slider" id="heroSlider">
+  <div class="slides" id="slides">
+    {% if banners %}
+      {% for b in banners %}
+      <div class="slide"
+        {% if b.image %}style="background-image:url('{{ b.image.url }}');"
+        {% else %}style="background:{{ b.bg_color }};"{% endif %}>
+        <div class="slide-content">
+          <div class="slide-tag">Exclusive</div>
+          <div class="slide-title">{{ b.title }}</div>
+          <div class="slide-sub">{{ b.subtitle }}</div>
+          <a href="{{ b.btn_link }}" class="slide-btn">{{ b.btn_text }} <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="slide" style="background:linear-gradient(135deg,#1a3c6e,#2563eb);">
+        <div class="slide-content">
+          <div class="slide-tag">Welcome to Gazitrade</div>
+          <div class="slide-title">Shop the Latest Trends</div>
+          <div class="slide-sub">Genuine products delivered fast across Bangladesh. Cash on delivery always.</div>
+          <a href="{% url 'product_list' %}" class="slide-btn">Shop Now <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="slide" style="background:linear-gradient(135deg,#e85d26,#ef4444);">
+        <div class="slide-content">
+          <div class="slide-tag">Best Deals</div>
+          <div class="slide-title">Exclusive Offers Today</div>
+          <div class="slide-sub">Limited time deals on top categories. No advance payment needed.</div>
+          <a href="{% url 'product_list' %}" class="slide-btn">Explore Deals <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  <button class="slider-arrow prev" onclick="prevSlide()" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+  <button class="slider-arrow next" onclick="nextSlide()" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+  <div class="slider-dots" id="sliderDots"></div>
+</div>
+
+<!-- ── PROMO STRIP ── -->
+<div style="background:var(--sur);border-bottom:1px solid var(--bdr);padding:12px 16px;
+            display:flex;justify-content:space-around;flex-wrap:wrap;gap:8px">
+  <div style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--tx2)">
+    <i class="fas fa-truck" style="color:var(--p);font-size:16px"></i> Free Delivery over ৳999
+  </div>
+  <div style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--tx2)">
+    <i class="fas fa-shield-halved" style="color:var(--p);font-size:16px"></i> 100% Genuine Products
+  </div>
+  <div style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--tx2)">
+    <i class="fas fa-rotate-left" style="color:var(--p);font-size:16px"></i> Easy Returns
+  </div>
+  <div style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--tx2)">
+    <i class="fas fa-headset" style="color:var(--p);font-size:16px"></i> 24/7 Support
+  </div>
+</div>
+
+<!-- ── CATEGORIES CAROUSEL ── -->
+{% if categories %}
+<div class="sec">
+  <div class="sec-hd">
+    <div class="sec-ttl">Shop by Category</div>
+    <a href="{% url 'categories' %}" class="see-all">All <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div style="position:relative;padding:0 36px">
+    <button class="cat-arr prev" id="catPrev" onclick="catMove(-1)" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+    <div class="cat-carousel-wrap">
+      <div class="cat-track" id="catTrack">
+        <a href="{% url 'product_list' %}" class="cat-card cat-all-card">
+          <div class="cat-card-icon"><i class="fas fa-box-open"></i></div>
+          <div class="cat-card-name">All</div>
+        </a>
+        {% for cat in categories %}
+        <a href="{% url 'product_list' %}?category={{ cat.slug }}" class="cat-card">
+          {% if cat.image %}
+            <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="cat-card-img">
+          {% else %}
+            <div class="cat-card-icon"><i class="fas fa-tag"></i></div>
+          {% endif %}
+          <div class="cat-card-name">{{ cat.name }}</div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    <button class="cat-arr next" id="catNext" onclick="catMove(1)" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── BEST SELLERS ── -->
+{% if best_sellers %}
+<div class="sec" style="padding-top:0">
+  <div class="sec-hd">
+    <div class="sec-ttl">🔥 Best Sellers</div>
+    <a href="{% url 'product_list' %}" class="see-all">View All <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div class="pgrid">
+    {% for product in best_sellers %}{% include 'partials/product_card.html' %}{% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ── OFFER BANNER SLIDER (superuser sets via admin, supports background image) ── -->
+{% if offer_banners %}
+<div class="sec" style="padding-top:0;padding-bottom:0">
+  <div class="offer-slider" id="offerSlider">
+    <div class="offer-slides" id="offerSlides">
+      {% for ob in offer_banners %}
+      <div class="offer-slide"
+        {% if ob.image %}style="background-image:url('{{ ob.image.url }}');"
+        {% else %}style="background:{{ ob.bg_color }};"{% endif %}>
+        <div class="offer-slide-content">
+          {% if ob.badge_text %}<div class="offer-badge">{{ ob.badge_text }}</div>{% endif %}
+          <div class="offer-title">{{ ob.title }}</div>
+          {% if ob.subtitle %}<div class="offer-sub">{{ ob.subtitle }}</div>{% endif %}
+          <a href="{{ ob.btn_link }}" class="offer-btn">{{ ob.btn_text }} <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if offer_banners.count > 1 %}
+    <button class="offer-prev" onclick="offerSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+    <button class="offer-next" onclick="offerSlide(1)"><i class="fas fa-chevron-right"></i></button>
+    <div class="offer-dots" id="offerDots"></div>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div style="margin:0 16px 20px;border-radius:16px;overflow:hidden;
+  background:linear-gradient(135deg,var(--p),color-mix(in srgb,var(--p) 60%,var(--a)));
+  padding:24px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+  <div>
+    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px">Special Offer</div>
+    <div style="font-family:var(--fd);font-size:22px;color:#fff;font-weight:800;margin-bottom:4px">New Arrivals Just Dropped!</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.85)">Fresh products added daily from Droploo.</div>
+  </div>
+  <a href="{% url 'product_list' %}?sort=newest" style="display:inline-flex;align-items:center;gap:8px;
+    background:#fff;color:var(--p);padding:11px 22px;border-radius:10px;font-size:14px;font-weight:800;
+    white-space:nowrap">Explore New <i class="fas fa-arrow-right"></i></a>
+</div>
+{% endif %}
+
+<!-- ── NEW ARRIVALS ── -->
+{% if new_arrivals %}
+<div class="sec" style="padding-top:0">
+  <div class="sec-hd">
+    <div class="sec-ttl">✨ New Arrivals</div>
+    <a href="{% url 'product_list' %}?sort=newest" class="see-all">See All <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div class="pgrid">
+    {% for product in new_arrivals %}{% include 'partials/product_card.html' %}{% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ── ALL PRODUCTS ── -->
+{% if all_products %}
+<div class="sec" style="padding-top:0">
+  <div class="sec-hd">
+    <div class="sec-ttl">All Products</div>
+    <a href="{% url 'product_list' %}" class="see-all">View All <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div class="pgrid">
+    {% for product in all_products %}{% include 'partials/product_card.html' %}{% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if not all_products and not best_sellers %}
+<div class="empty-state">
+  <i class="fas fa-store"></i>
+  <h3>Store is being set up</h3>
+  <p>Products will appear after syncing from Droploo.<br>{% if user.is_staff %}Tap below to sync.{% endif %}</p>
+  {% if user.is_staff %}
+  <button class="btn btn-primary" style="max-width:240px;margin:0 auto" onclick="syncNow(this)">
+    <i class="fas fa-sync"></i> Sync Products from Droploo
+  </button>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+{% block extra_js %}
+<script>
+/* ── HERO SLIDER ── */
+const slidesEl = document.getElementById('slides');
+const dotsEl   = document.getElementById('sliderDots');
+let cur = 0, tot = 0, timer;
+function buildSlider(){
+  tot = slidesEl ? slidesEl.children.length : 0;
+  if(tot < 2) return;
+  for(let i=0;i<tot;i++){
+    const d=document.createElement('button');
+    d.className='dot'+(i===0?' active':'');
+    d.setAttribute('aria-label','Slide '+(i+1));
+    d.onclick=()=>goSlide(i);
+    dotsEl.appendChild(d);
+  }
+  startAuto();
+}
+function goSlide(n){
+  cur=(n+tot)%tot;
+  slidesEl.style.transform=`translateX(-${cur*100}%)`;
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+}
+function nextSlide(){goSlide(cur+1);}
+function prevSlide(){goSlide(cur-1);}
+function startAuto(){clearInterval(timer);timer=setInterval(nextSlide,4800);}
+document.getElementById('heroSlider')?.addEventListener('touchstart',()=>clearInterval(timer));
+document.getElementById('heroSlider')?.addEventListener('touchend',()=>startAuto());
+buildSlider();
+
+/* ── CATEGORY CAROUSEL ── */
+(function(){
+  const track = document.getElementById('catTrack');
+  if(!track) return;
+  const cards = track.children;
+  let catCur = 0;
+  const CARD_W = () => (cards[0]?.offsetWidth || 124) + 14;
+  const visible = () => Math.floor(track.parentElement.offsetWidth / CARD_W());
+  const maxSlide = () => Math.max(0, cards.length - visible());
+
+  function catMove(dir){
+    catCur = Math.min(Math.max(catCur + dir, 0), maxSlide());
+    track.style.transform = `translateX(-${catCur * CARD_W()}px)`;
+    document.getElementById('catPrev').style.opacity = catCur === 0 ? '0.35' : '1';
+    document.getElementById('catNext').style.opacity = catCur >= maxSlide() ? '0.35' : '1';
+  }
+  window.catMove = catMove;
+  catMove(0);
+
+  // Auto-slide categories
+  let catTimer = setInterval(()=>{ if(catCur >= maxSlide()) catCur=-1; catMove(1); }, 2800);
+  track.addEventListener('touchstart',()=>clearInterval(catTimer));
+})();
+
+/* ── OFFER BANNER SLIDER ── */
+(function(){
+  const sl = document.getElementById('offerSlides');
+  const dotsEl = document.getElementById('offerDots');
+  if(!sl) return;
+  const tot = sl.children.length;
+  if(tot < 2) return;
+  let cur = 0;
+  for(let i=0;i<tot;i++){
+    const d=document.createElement('button');
+    d.className='offer-dot'+(i===0?' active':'');
+    d.onclick=()=>goOffer(i);
+    dotsEl.appendChild(d);
+  }
+  function goOffer(n){
+    cur=(n+tot)%tot;
+    sl.style.transform=`translateX(-${cur*100}%)`;
+    document.querySelectorAll('.offer-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  }
+  window.offerSlide=function(dir){goOffer(cur+dir);}
+  setInterval(()=>goOffer(cur+1),5000);
+})();
+
+/* ── SYNC ── */
+async function syncNow(btn){
+  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Syncing…';
+  try{
+    const r=await fetch('/sync-products/');const d=await r.json();
+    if(d.success){showToast(`✓ Synced! Added ${d.added} products, ${d.variants_added} variants.`);setTimeout(()=>location.reload(),1800);}
+    else{showToast('Error: '+(d.error||'Unknown'));btn.disabled=false;btn.innerHTML='<i class="fas fa-sync"></i> Retry';}
+  }catch(e){showToast('Network error');btn.disabled=false;}
+}
+async function fixCats(btn){
+  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Fixing…';
+  try{
+    const r=await fetch('/fix-categories/');const d=await r.json();
+    if(d.success){showToast(`✓ Fixed! Updated ${d.updated} categories.`);setTimeout(()=>location.reload(),1800);}
+    else{showToast('Error: '+(d.error||'Unknown'));btn.disabled=false;btn.innerHTML='<i class="fas fa-tags"></i> Fix Category Names';}
+  }catch(e){showToast('Network error');btn.disabled=false;}
+}
+async function clearResync(btn){
+  if(!confirm('This will DELETE all products and re-sync fresh. Continue?'))return;
+  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Working…';
+  try{
+    const r=await fetch('/clear-resync/');const d=await r.json();
+    if(d.success){showToast(`✓ Done! Added ${d.added} products fresh.`);setTimeout(()=>location.reload(),2500);}
+    else{showToast('Error: '+(d.error||'Unknown'));btn.disabled=false;btn.innerHTML='<i class="fas fa-trash-restore"></i> Clear & Re-sync';}
+  }catch(e){showToast('Network error');btn.disabled=false;}
+}
+</script>
+{% endblock %}

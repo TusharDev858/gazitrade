@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load store_tags %}
+{% block title %}Checkout — Gazitrade{% endblock %}
+{% block extra_css %}
+<style>
+.co-wrap{max-width:680px;margin:0 auto;padding:20px 16px 40px}
+.co-card{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:var(--s1)}
+.co-card-title{font-size:14px;font-weight:800;color:var(--tx);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.co-card-title i{color:var(--p);font-size:16px}
+.co-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* Delivery option */
+.del-box{padding:14px;border:2px solid var(--bdr);border-radius:12px;cursor:pointer;transition:all .2s}
+.del-box.active{border-color:var(--p);background:var(--sur2)}
+.del-box input{display:none}
+.del-box-icon{font-size:22px;margin-bottom:5px}
+.del-box-name{font-size:13px;font-weight:800;color:var(--tx);margin-bottom:2px}
+.del-box-price{font-size:24px;font-weight:900;color:var(--p)}
+.del-box-days{font-size:11px;color:var(--tx3);margin-top:2px}
+/* Payment options */
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pay-box{padding:14px 10px;border:2px solid var(--bdr);border-radius:12px;
+  text-align:center;transition:all .2s;position:relative;overflow:hidden}
+.pay-box.cod-box{border-color:var(--p);background:linear-gradient(135deg,var(--sur2),var(--sur3))}
+.pay-box.coming-box{cursor:not-allowed;opacity:.65}
+.pay-box.coming-box:hover{opacity:.75}
+.pay-box input{display:none}
+.pay-icon{font-size:26px;margin-bottom:5px}
+.pay-label{font-size:12px;font-weight:700;color:var(--tx)}
+.pay-coming{display:block;font-size:10px;font-weight:700;color:var(--tx3);
+  background:var(--sur2);padding:2px 8px;border-radius:20px;margin-top:4px}
+.cod-active-badge{display:inline-flex;align-items:center;gap:5px;
+  background:#dcfce7;color:#15803d;font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:20px;margin-top:4px;border:1px solid #bbf7d0}
+[data-theme="dark"] .cod-active-badge{background:#052e16;color:#86efac;border-color:#14532d}
+/* Order items */
+.co-item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bdr)}
+.co-item:last-of-type{border-bottom:none}
+.co-item-img{width:52px;height:52px;border-radius:10px;overflow:hidden;background:var(--sur2);flex-shrink:0}
+.co-item-img img{width:100%;height:100%;object-fit:cover;display:block}
+/* Totals */
+.co-totals div{display:flex;justify-content:space-between;font-size:13px;padding:5px 0}
+.co-totals .grand{font-size:17px;font-weight:900;border-top:2px solid var(--bdr);margin-top:8px;padding-top:10px}
+/* Submit */
+.co-place-btn{width:100%;padding:15px;border-radius:14px;font-size:16px;font-weight:800;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;
+  background:linear-gradient(135deg,var(--p),color-mix(in srgb,var(--p) 70%,var(--a)));
+  color:#fff;box-shadow:0 6px 24px var(--p10);transition:opacity .2s,transform .15s}
+.co-place-btn:active{transform:scale(.98);opacity:.9}
+.co-place-btn:disabled{opacity:.6;cursor:not-allowed}
+/* No advance note */
+.co-no-advance{text-align:center;padding:12px 14px;
+  background:linear-gradient(135deg,#fef9c3,#fef3c7);
+  border:1px solid #fde68a;border-radius:12px;margin-top:10px;
+  font-size:13px;font-weight:700;color:#854d0e;line-height:1.7}
+[data-theme="dark"] .co-no-advance{background:linear-gradient(135deg,#292009,#332b0c);border-color:#473a10;color:#fcd34d}
+@media(min-width:768px){.co-wrap{padding:32px 0 60px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="co-wrap">
+  <h1 style="font-family:var(--fd);font-size:26px;font-weight:800;color:var(--tx);margin-bottom:20px">
+    <i class="fas fa-bag-shopping" style="color:var(--p)"></i> Checkout
+  </h1>
+
+  <form method="post" id="coForm">
+    {% csrf_token %}
+
+    <!-- DELIVERY INFO -->
+    <div class="co-card">
+      <div class="co-card-title"><i class="fas fa-location-dot"></i> Delivery Information</div>
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        <input type="text" name="name" class="form-input" required
+          value="{% if customer and customer.name %}{{ customer.name }}{% endif %}"
+          placeholder="Your full name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number *</label>
+        <input type="tel" name="phone" class="form-input" required
+          value="{% if customer %}{{ customer.phone }}{% endif %}"
+          placeholder="01XXXXXXXXX">
+        <div class="form-hint">11 digits starting with 01</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email <span style="color:var(--tx3)">(optional)</span></label>
+        <input type="email" name="email" class="form-input"
+          value="{% if customer %}{{ customer.email }}{% endif %}"
+          placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Address *</label>
+        <textarea name="address" class="form-input" rows="2" required
+          placeholder="House no, Road, Area, City">{% if customer %}{{ customer.address }}{% endif %}</textarea>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Area / District</label>
+        <input type="text" name="area" class="form-input"
+          value="{% if customer %}{{ customer.area }}{% endif %}"
+          placeholder="e.g. Dhaka, Chittagong, Sylhet">
+      </div>
+    </div>
+
+    <!-- DELIVERY TYPE -->
+    <div class="co-card">
+      <div class="co-card-title"><i class="fas fa-truck"></i> Delivery Option</div>
+      <div class="co-grid">
+        <label class="del-box" id="delInside" onclick="setDel(60,'delInside','delOutside')">
+          <input type="radio" name="delivery_type" value="inside">
+          <div class="del-box-icon">🏙️</div>
+          <div class="del-box-name">Inside Dhaka</div>
+          <div class="del-box-price">৳60</div>
+          <div class="del-box-days">1–2 business days</div>
+        </label>
+        <label class="del-box active" id="delOutside" onclick="setDel(120,'delOutside','delInside')">
+          <input type="radio" name="delivery_type" value="outside" checked>
+          <div class="del-box-icon">🚚</div>
+          <div class="del-box-name">Outside Dhaka</div>
+          <div class="del-box-price">৳120</div>
+          <div class="del-box-days">3–5 business days</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- PAYMENT METHOD — COD only, others Coming Soon -->
+    <div class="co-card">
+      <div class="co-card-title"><i class="fas fa-credit-card"></i> Payment Method</div>
+      <div class="pay-grid">
+
+        <!-- COD — ACTIVE -->
+        <label class="pay-box cod-box" style="grid-column:1/-1">
+          <input type="radio" name="payment_type" value="cod" checked>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:32px">💵</span>
+              <div>
+                <div style="font-size:15px;font-weight:800;color:var(--tx)">Cash on Delivery</div>
+                <div style="font-size:12px;color:var(--tx2);margin-top:2px">Pay when your order arrives at your door</div>
+              </div>
+            </div>
+            <span class="cod-active-badge"><i class="fas fa-check-circle"></i> Selected</span>
+          </div>
+        </label>
+
+        <!-- bKash — Coming Soon -->
+        <div class="pay-box coming-box" onclick="showComingSoon('bKash')">
+          <div class="pay-icon">📱</div>
+          <div class="pay-label">bKash</div>
+          <span class="pay-coming">⏳ Coming Soon</span>
+        </div>
+
+        <!-- Nagad — Coming Soon -->
+        <div class="pay-box coming-box" onclick="showComingSoon('Nagad')">
+          <div class="pay-icon">💳</div>
+          <div class="pay-label">Nagad</div>
+          <span class="pay-coming">⏳ Coming Soon</span>
+        </div>
+
+        <!-- Rocket — Coming Soon -->
+        <div class="pay-box coming-box" onclick="showComingSoon('Rocket')">
+          <div class="pay-icon">🚀</div>
+          <div class="pay-label">Rocket</div>
+          <span class="pay-coming">⏳ Coming Soon</span>
+        </div>
+
+        <!-- SSLCommerz — Coming Soon -->
+        <div class="pay-box coming-box" onclick="showComingSoon('Card / SSL')">
+          <div class="pay-icon">💳</div>
+          <div class="pay-label">Card / SSL</div>
+          <span class="pay-coming">⏳ Coming Soon</span>
+        </div>
+
+      </div>
+
+      <!-- No advance note -->
+      <div class="co-no-advance">
+        🛍️ <strong>এই পণ্যের জন্য একটি টাকাও অগ্রিম দিতে হবে না।</strong><br>
+        <span style="font-size:12px">ক্যাশ অন ডেলিভারি — ডেলিভারির সময় পেমেন্ট করুন।</span>
+      </div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div class="co-card">
+      <div class="co-card-title"><i class="fas fa-receipt"></i> Order Summary</div>
+      {% for key,item in cart.items %}
+      <div class="co-item">
+        <div class="co-item-img">
+          {% if item.image %}<img src="{{ item.image }}" alt="{{ item.name }}">
+          {% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"><i class="fas fa-image" style="color:var(--bdr)"></i></div>{% endif %}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ item.name|truncatechars:35 }}</div>
+          {% if item.size %}<div style="font-size:11px;color:var(--tx3)">{{ item.size }}{% if item.color %} / {{ item.color }}{% endif %} — Qty {{ item.qty }}</div>
+          {% else %}<div style="font-size:11px;color:var(--tx3)">Qty {{ item.qty }}</div>{% endif %}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:14px;font-weight:800;color:var(--p)">{{ item.price|multiply:item.qty|currency }}</div>
+          <div style="font-size:11px;color:var(--tx3)">{{ item.price|currency }} each</div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="co-totals" style="margin-top:8px">
+        <div><span style="color:var(--tx2)">Subtotal</span><span style="font-weight:700">{{ subtotal|currency }}</span></div>
+        <div><span style="color:var(--tx2)">Delivery charge</span><span style="font-weight:700" id="delAmt">৳120.00</span></div>
+        <div class="grand"><span>Total</span><span style="color:var(--p)" id="grandTotal">—</span></div>
+      </div>
+
+      <div class="form-group" style="margin-top:14px;margin-bottom:0">
+        <label class="form-label">Special Notes <span style="color:var(--tx3)">(optional)</span></label>
+        <textarea name="notes" class="form-input" rows="2" placeholder="Ring the bell / Leave at gate…"></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="co-place-btn" id="placeBtn">
+      <i class="fas fa-lock"></i> Place Order — Cash on Delivery
+    </button>
+    <p style="text-align:center;font-size:12px;color:var(--tx3);margin-top:12px">
+      <i class="fas fa-shield-halved" style="color:var(--p)"></i>
+      100% secure. No advance payment. Pay on delivery.
+    </p>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const SUB = parseFloat("{{ subtotal }}");
+let delCost = 120;
+
+function setDel(cost, activeId, inactiveId){
+  delCost = cost;
+  document.getElementById('delAmt').textContent      = '৳' + cost.toFixed(2);
+  document.getElementById('grandTotal').textContent  = '৳' + (SUB + cost).toFixed(2);
+  document.getElementById(activeId).classList.add('active');
+  document.getElementById(inactiveId).classList.remove('active');
+  document.querySelector(`#${activeId} input`).checked = true;
+}
+
+function showComingSoon(name){
+  showToast(`⏳ ${name} payment is coming soon! Please use Cash on Delivery.`, 3500);
+}
+
+document.getElementById('grandTotal').textContent = '৳' + (SUB + delCost).toFixed(2);
+document.getElementById('delAmt').textContent     = '৳' + delCost.toFixed(2);
+
+document.getElementById('coForm').addEventListener('submit', function(){
+  const btn = document.getElementById('placeBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order…';
+});
+</script>
+{% endblock %}

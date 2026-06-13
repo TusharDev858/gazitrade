@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load store_tags %}
+{% block title %}My Cart — Gazitrade{% endblock %}
+{% block content %}
+<div class="page-header"><h1>🛍 My Cart</h1></div>
+<div class="section">
+{% if cart_items %}
+
+  <!-- CART ITEMS -->
+  <div style="margin-bottom:14px">
+    {% for item in cart_items %}
+    <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:16px;
+                padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;
+                box-shadow:var(--s1)">
+      <!-- Image -->
+      {% if item.image %}
+        <img src="{{ item.image }}" style="width:76px;height:76px;border-radius:12px;
+             object-fit:cover;flex-shrink:0;border:1px solid var(--bdr)">
+      {% else %}
+        <div style="width:76px;height:76px;border-radius:12px;background:var(--sur2);
+                    flex-shrink:0;display:flex;align-items:center;justify-content:center;
+                    border:1px solid var(--bdr)">
+          <i class="fas fa-image" style="color:var(--bdr);font-size:24px"></i>
+        </div>
+      {% endif %}
+
+      <!-- Info -->
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;line-height:1.3;margin-bottom:4px;
+                    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx)">
+          {{ item.name }}
+        </div>
+        {% if item.size %}<div style="font-size:11px;color:var(--tx3);margin-bottom:2px">Size: {{ item.size }}{% if item.color %} / {{ item.color }}{% endif %}</div>{% endif %}
+        <div style="font-size:16px;font-weight:900;color:var(--p);margin-top:4px">{{ item.subtotal|currency }}</div>
+        <div style="font-size:11px;color:var(--tx3)">{{ item.price|currency }} each</div>
+      </div>
+
+      <!-- Controls -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0">
+        <div style="display:flex;align-items:center;border:1.5px solid var(--bdr);
+                    border-radius:10px;overflow:hidden;background:var(--sur2)">
+          <button onclick="updateQty('{{ item.key }}', {{ item.qty }}-1)"
+            style="width:32px;height:32px;border:none;background:transparent;
+                   font-size:18px;color:var(--tx);font-weight:700;cursor:pointer">−</button>
+          <span style="width:32px;text-align:center;font-weight:800;font-size:14px;color:var(--tx)">{{ item.qty }}</span>
+          <button onclick="updateQty('{{ item.key }}', {{ item.qty }}+1)"
+            style="width:32px;height:32px;border:none;background:transparent;
+                   font-size:18px;color:var(--tx);font-weight:700;cursor:pointer">+</button>
+        </div>
+        <button onclick="removeItem('{{ item.key }}')"
+          style="border:none;background:none;color:#ef4444;font-size:16px;cursor:pointer;
+                 padding:4px 8px;border-radius:8px;transition:background .2s"
+          onmouseover="this.style.background='#fee2e2'"
+          onmouseout="this.style.background='none'">
+          <i class="fas fa-trash-can"></i>
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- SUMMARY -->
+  <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:16px;
+              padding:16px;margin-bottom:14px;box-shadow:var(--s1)">
+    <div style="font-size:15px;font-weight:800;color:var(--tx);margin-bottom:12px">
+      Order Summary
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+      <span style="color:var(--tx2)">Subtotal ({{ cart_items|length }} item{{ cart_items|length|pluralize }})</span>
+      <span style="font-weight:700">{{ total|currency }}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+      <span style="color:var(--tx2)">Delivery</span>
+      <span style="font-weight:700;color:#f59e0b">Calculated at checkout</span>
+    </div>
+    <hr style="border:none;border-top:1.5px solid var(--bdr);margin:12px 0">
+    <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900">
+      <span>Estimated Total</span>
+      <span style="color:var(--p)">{{ total|currency }}</span>
+    </div>
+  </div>
+
+  <a href="{% url 'checkout' %}" class="btn btn-accent" style="display:flex;margin-bottom:10px">
+    <i class="fas fa-lock"></i> Proceed to Checkout
+  </a>
+  <a href="{% url 'product_list' %}" class="btn btn-outline" style="display:flex">
+    <i class="fas fa-arrow-left"></i> Continue Shopping
+  </a>
+
+{% else %}
+  <div class="empty-state">
+    <i class="fas fa-bag-shopping"></i>
+    <h3>Your cart is empty</h3>
+    <p>You haven't added anything yet. Browse our store and find something you love!</p>
+    <a href="{% url 'product_list' %}" class="btn btn-primary" style="max-width:220px;margin:0 auto">
+      Start Shopping →
+    </a>
+  </div>
+{% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function updateQty(key, qty){
+  if(qty < 1){ removeItem(key); return; }
+  await fetch('/cart/update/',{method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+    body:JSON.stringify({key,qty})});
+  location.reload();
+}
+async function removeItem(key){
+  const r = await fetch('/cart/remove/',{method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+    body:JSON.stringify({key})});
+  const d = await r.json();
+  if(d.success){ updateCartBadge(d.cart_count); location.reload(); }
+}
+</script>
+{% endblock %}

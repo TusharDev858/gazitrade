@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}My Wishlist — Gazitrade{% endblock %}
+{% block nav_wish %}active{% endblock %}
+{% block content %}
+<div class="page-header"><h1>❤ My Wishlist</h1></div>
+<div class="section">
+  {% if wishlist_items %}
+    <div class="products-grid">
+      {% for item in wishlist_items %}
+        {% with product=item.product %}{% include 'partials/product_card.html' %}{% endwith %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="fas fa-heart"></i>
+      <h3>Your wishlist is empty</h3>
+      <p>Tap the heart icon on any product to save it here for later.</p>
+      <a href="{% url 'product_list' %}" class="btn btn-primary" style="max-width:220px;margin:0 auto">
+        Start Shopping →
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

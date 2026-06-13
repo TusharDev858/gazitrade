@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load store_tags %}
+{% block title %}Order Placed! — Gazitrade{% endblock %}
+{% block content %}
+
+<div style="min-height:calc(100vh - var(--nav) - var(--bot));
+            display:flex;align-items:center;justify-content:center;
+            padding:28px 16px;
+            background:radial-gradient(ellipse at top,var(--sur2) 0%,var(--bg) 70%)">
+  <div style="width:100%;max-width:480px">
+
+    <!-- SUCCESS ANIMATION -->
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="width:90px;height:90px;border-radius:50%;
+                  background:linear-gradient(135deg,#22c55e,#16a34a);
+                  display:flex;align-items:center;justify-content:center;
+                  margin:0 auto 18px;box-shadow:0 8px 32px rgba(34,197,94,.3);
+                  font-size:40px">✅</div>
+      <h1 style="font-family:var(--fd);font-size:28px;font-weight:800;
+                 color:var(--tx);margin-bottom:8px">Order Confirmed!</h1>
+      <p style="font-size:14px;color:var(--tx2);line-height:1.7">
+        Thank you, <strong>{{ order.customer_name }}</strong>!<br>
+        Your order has been received and is being processed.
+      </p>
+    </div>
+
+    <!-- ORDER CARD -->
+    <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:24px;
+                padding:22px;margin-bottom:14px;box-shadow:var(--s2)">
+
+      <!-- Invoice + Status -->
+      <div style="display:flex;justify-content:space-between;align-items:center;
+                  padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--bdr)">
+        <div>
+          <div style="font-size:11px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:1px">Invoice</div>
+          <div style="font-size:20px;font-weight:900;color:var(--tx)">{{ order.invoice_number }}</div>
+        </div>
+        <span style="padding:7px 16px;border-radius:20px;font-size:12px;font-weight:800;
+                     background:#fef9c3;color:#854d0e">{{ order.get_status_display }}</span>
+      </div>
+
+      <!-- Droploo ID if available -->
+      {% if order.droploo_order_id %}
+      <div style="background:var(--sur2);border-radius:12px;padding:11px 14px;
+                  margin-bottom:14px;font-size:13px;color:var(--tx2);
+                  display:flex;align-items:center;gap:9px;border:1px solid var(--bdr)">
+        <i class="fas fa-truck" style="color:var(--p);font-size:16px"></i>
+        <div>
+          <div style="font-size:10px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.8px">Droploo Order ID</div>
+          <div style="font-weight:800;color:var(--tx)">{{ order.droploo_order_id }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Items -->
+      {% for item in order.items.all %}
+      <div style="display:flex;justify-content:space-between;align-items:center;
+                  font-size:13px;padding:7px 0;border-bottom:1px solid var(--bdr)">
+        <div style="flex:1;overflow:hidden;margin-right:10px">
+          <div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tx)">
+            {{ item.product_name|truncatechars:32 }}
+          </div>
+          <div style="font-size:11px;color:var(--tx3)">
+            {% if item.size %}{{ item.size }}{% if item.color %} / {{ item.color }}{% endif %} — {% endif %}Qty {{ item.qty }}
+          </div>
+        </div>
+        <span style="font-weight:800;color:var(--p);flex-shrink:0">{{ item.line_total|currency }}</span>
+      </div>
+      {% endfor %}
+
+      <!-- Totals -->
+      <div style="margin-top:12px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;padding:4px 0;color:var(--tx2)">
+          <span>Subtotal</span><span style="font-weight:700;color:var(--tx)">{{ order.subtotal|currency }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;color:var(--tx2)">
+          <span>Delivery ({{ order.get_delivery_type_display }})</span>
+          <span style="font-weight:700;color:var(--tx)">{{ order.delivery_cost|currency }}</span>
+        </div>
+        {% if order.discount %}
+        <div style="display:flex;justify-content:space-between;padding:4px 0">
+          <span style="color:var(--tx2)">Discount</span>
+          <span style="font-weight:700;color:#22c55e">-{{ order.discount|currency }}</span>
+        </div>
+        {% endif %}
+        <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;
+                    border-top:2px solid var(--bdr);margin-top:10px;padding-top:12px">
+          <span style="color:var(--tx)">Total</span>
+          <span style="color:var(--p)">{{ order.total|currency }}</span>
+        </div>
+      </div>
+
+      <!-- Contact info -->
+      <div style="margin-top:14px;padding:12px;background:var(--sur2);
+                  border-radius:12px;font-size:12px;color:var(--tx2);line-height:2">
+        <div><i class="fas fa-phone" style="color:var(--p);width:16px"></i> {{ order.customer_phone }}</div>
+        <div><i class="fas fa-location-dot" style="color:var(--p);width:16px"></i> {{ order.customer_address }}</div>
+        <div><i class="fas fa-credit-card" style="color:var(--p);width:16px"></i> {{ order.get_payment_type_display }}</div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <a href="{% url 'track_order' %}" class="btn btn-primary" style="display:flex;margin-bottom:10px">
+      <i class="fas fa-truck"></i> Track My Order
+    </a>
+    <a href="{% url 'home' %}" class="btn btn-outline" style="display:flex">
+      <i class="fas fa-store"></i> Continue Shopping
+    </a>
+
+    <!-- Save tip -->
+    <p style="text-align:center;font-size:12px;color:var(--tx3);margin-top:16px;line-height:1.7">
+      <i class="fas fa-bookmark" style="color:var(--p)"></i>
+      Save invoice <strong style="color:var(--tx)">{{ order.invoice_number }}</strong> to track anytime
+    </p>
+
+  </div>
+</div>
+{% endblock %}

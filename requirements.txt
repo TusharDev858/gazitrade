@@ -1,0 +1,13 @@
+# Core
+Django==5.2.2
+Pillow==11.2.1
+requests==2.32.3
+
+# Server
+gunicorn==23.0.0
+whitenoise==6.9.0
+
+# Config & DB
+python-dotenv==1.1.0
+dj-database-url==2.3.0
+psycopg2-binary==2.9.10

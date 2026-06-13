@@ -1,0 +1,38 @@
+{% load store_tags %}
+{% if product.slug %}
+<a href="{% url 'product_detail' product.slug %}" class="product-card">
+{% else %}
+<div class="product-card">
+{% endif %}
+  <div class="product-img-wrap">
+    {% if product.main_image %}
+      <img src="{{ product.main_image.image_url }}" alt="{{ product.name }}" loading="lazy">
+    {% else %}
+      <div class="no-image-placeholder"><i class="fas fa-image"></i></div>
+    {% endif %}
+    {% if product.badge %}
+      <span class="product-badge badge-{{ product.badge|lower }}">{{ product.badge }}</span>
+    {% endif %}
+    <button class="wish-btn {% if product.id in wishlist_ids %}active{% endif %}"
+      onclick="event.preventDefault();event.stopPropagation();toggleWishlist({{ product.id }},this)"
+      aria-label="Wishlist">
+      <i class="fas fa-heart"></i>
+    </button>
+    <button class="quick-add"
+      onclick="event.preventDefault();event.stopPropagation();addToCart({{ product.id }})">
+      <i class="fas fa-bag-shopping"></i> Quick Add
+    </button>
+  </div>
+  <div class="product-info">
+    <div class="product-name">{{ product.name }}</div>
+    <div class="product-stars">★★★★★ <span style="color:var(--tx3);font-size:10px">(0)</span></div>
+    <div class="product-price">
+      {{ product.sale_price|currency }}
+      {% if product.discount_price %}<span class="old">{{ product.price|currency }}</span>{% endif %}
+    </div>
+  </div>
+{% if product.slug %}
+</a>
+{% else %}
+</div>
+{% endif %}
