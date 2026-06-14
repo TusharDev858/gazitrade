@@ -163,7 +163,7 @@
     <div class="pd-gallery">
       <div class="pd-main-img" id="mainImgWrap">
         {% if product.main_image %}
-          <img id="mainImg" src="{{ product.main_image.image_url }}" alt="{{ product.name }}">
+          <img id="mainImg" src="{{ product.main_image.image_url }}" alt="{{ product.name }}" onerror="this.parentElement.innerHTML='<div style='width:100%;height:100%;display:flex;align-items:center;justify-content:center'><i class='fas fa-image' style='font-size:80px;color:var(--bdr)'></i></div>'">
         {% else %}
           <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">
             <i class="fas fa-image" style="font-size:80px;color:var(--bdr)"></i>
@@ -186,8 +186,8 @@
       <div class="pd-thumbs">
         {% for img in product.images.all %}
         <button class="pd-thumb {% if forloop.first %}active{% endif %}"
-          onclick="setImg('{{ img.image_url }}',{{ forloop.counter }},{{ product.images.count }},this)">
-          <img src="{{ img.image_url }}" alt="Image {{ forloop.counter }}">
+          onclick="setImg('{{ img.image_url|escapejs }}',{{ forloop.counter }},{{ product.images.count }},this)">
+          <img src="{{ img.image_url }}" alt="Image {{ forloop.counter }}" onerror="this.style.display='none'">
         </button>
         {% endfor %}
       </div>
@@ -244,9 +244,6 @@
               data-price="{{ v.price|default:product.sale_price }}"
               {% if v.stock == 0 %}title="Out of stock" disabled{% endif %}>
               {{ v.size }}
-              {% if v.price %}
-              <span class="btn-price">{{ v.price|currency }}</span>
-              {% endif %}
             </button>
             {% endif %}
             {% endfor %}
@@ -334,7 +331,7 @@
   {% if product.description %}
   <div class="pd-desc">
     <div class="pd-desc-title"><i class="fas fa-list-check"></i> Product Details</div>
-    <div class="pd-desc-body">{{ product.description|linebreaks }}</div>
+    <div class="pd-desc-body">{{ product.description|safe }}</div>
   </div>
   {% endif %}
 
